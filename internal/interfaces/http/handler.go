@@ -7,6 +7,7 @@ import (
 
 	"ekatr/internal/application/user"
 	"ekatr/internal/logger"
+	"ekatr/internal/utils"
 )
 
 type UserHandler struct {
@@ -40,6 +41,26 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Printf("User registered successfully: %v", dto.Username)
 }
 
+// func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+// 	var dto user.LoginUserDTO
+// 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+// 		logger.ErrorLogger.Printf("Error decoding request body: %v", err)
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	u, err := h.service.LoginUser(dto)
+// 	if err != nil {
+// 		logger.ErrorLogger.Printf("Error logging in user: %v", err)
+// 		http.Error(w, err.Error(), http.StatusUnauthorized)
+// 		return
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	logger.InfoLogger.Printf("User logged in successfully: %v", u.Username)
+// 	json.NewEncoder(w).Encode(u)
+// }
+
 func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var dto user.LoginUserDTO
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
@@ -55,9 +76,20 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert UserType to string
+	role := string(u.Type)
+
+	// Generate token
+	token, err := utils.GenerateToken(u.Username, role)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error generating token: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{"token": token}
 	w.WriteHeader(http.StatusOK)
-	logger.InfoLogger.Printf("User logged in successfully: %v", u.Username)
-	json.NewEncoder(w).Encode(u)
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
