@@ -2,14 +2,15 @@ package http
 
 import (
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func NewRouter(userHandler *UserHandler) *mux.Router {
 	router := mux.NewRouter()
-
-	router.HandleFunc("/register", userHandler.RegisterUser).Methods("POST")
+	
+	router.Handle("/register", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(userHandler.RegisterUser)))).Methods("POST")
 	router.HandleFunc("/login", userHandler.LoginUser).Methods("POST")
-	router.HandleFunc("/user", userHandler.GetUserByID).Methods("GET")
-	router.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
+	router.Handle("/user", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(userHandler.GetUserByID)))).Methods("GET")
+	router.Handle("/users", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(userHandler.GetAllUsers)))).Methods("GET")
 	return router
 }
