@@ -9,7 +9,7 @@ func NewRouter(userHandler *UserHandler) *mux.Router {
 
 	router.HandleFunc("/register", userHandler.RegisterUser).Methods("POST")
 	router.HandleFunc("/login", userHandler.LoginUser).Methods("POST")
-	
-
+	router.HandleFunc("/user", userHandler.GetUserByID).Methods("GET")
+	router.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	return router
 }
