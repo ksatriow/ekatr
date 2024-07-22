@@ -70,3 +70,16 @@ func (s *UserService) LoginUser(dto LoginUserDTO) (*user.User, error) {
 
 	return existingUser, nil
 }
+
+func (s *UserService) GetUserByID(id int) (*user.User, error) {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error finding user by ID: %v", err)
+		return nil, errors.New("internal server error")
+	}
+	if user == nil {
+		logger.InfoLogger.Printf("User with ID %d not found", id)
+		return nil, errors.New("user not found")
+	}
+	return user, nil
+}

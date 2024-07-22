@@ -48,4 +48,17 @@ func (r *UserRepository) FindByUsername(username string) (*user.User, error) {
 	return &u, nil
 }
 
+func (r *UserRepository) FindByID(id int) (*user.User, error) {
+	query := "SELECT id, username, password, email, type, created_at FROM users WHERE id = $1"
+	row := r.db.QueryRow(query, id)
+
+	var u user.User
+	if err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.Type, &u.CreatedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &u, nil
+}
 
