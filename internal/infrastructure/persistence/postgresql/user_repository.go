@@ -62,3 +62,24 @@ func (r *UserRepository) FindByID(id int) (*user.User, error) {
 	return &u, nil
 }
 
+func (r *UserRepository) FindAll() ([]*user.User, error) {
+	query := "SELECT id, username, password, email, type, created_at FROM users"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*user.User
+	for rows.Next() {
+		var u user.User
+		if err := rows.Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.Type, &u.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, &u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
+}

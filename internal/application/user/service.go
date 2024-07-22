@@ -83,3 +83,12 @@ func (s *UserService) GetUserByID(id int) (*user.User, error) {
 	}
 	return user, nil
 }
+
+func (s *UserService) GetAllUsers() ([]*user.User, error) {
+	users, err := s.repo.FindAll()
+	if err != nil {
+		logger.ErrorLogger.Printf("Error finding all users: %v", err)
+		return nil, errors.New("internal server error")
+	}
+	return users, nil
+}
