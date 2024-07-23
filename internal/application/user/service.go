@@ -90,3 +90,39 @@ func (s *UserService) GetAllUsers() ([]*user.User, error) {
 	}
 	return users, nil
 }
+
+func (s *UserService) DeleteUserByID(id int) error {
+	return s.repo.DeleteByID(id)
+}
+
+func (s *UserService) UpdateUser(id int, dto UpdateUserDTO) error {
+	existingUser, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if existingUser == nil {
+		return errors.New("user not found")
+	}
+
+	if dto.Username != nil {
+		existingUser.Username = *dto.Username
+	}
+	if dto.Password != nil {
+		hashedPassword, err := utils.HashPassword(*dto.Password) // assume you have a hashPassword function
+		if err != nil {
+			return err
+		}
+		existingUser.Password = hashedPassword
+	}
+	if dto.Email != nil {
+		existingUser.Email = *dto.Email
+	}
+	if dto.Type != nil {
+		existingUser.Type = user.UserType(*dto.Type)
+	}
+	if dto.ProfilePhoto != nil {
+		existingUser.ProfilePhoto = *dto.ProfilePhoto
+	}
+
+	return s.repo.Update(existingUser)
+}
