@@ -13,21 +13,22 @@ const (
 )
 
 type User struct {
-	ID        UserID
-	Username  string
-	Password  string
-	Email     string
-	Type      UserType
-	CreatedAt time.Time
+	ID           UserID
+	Username     string
+	Password     string
+	Email        string
+	Type         UserType
+	ProfilePhoto string
+	CreatedAt    time.Time
 }
 
-func NewUser(username, password, email string, userType UserType) *User {
+func NewUser(username, password, email string, userType UserType, profilePhoto string) *User {
 	return &User{
-		Username:  username,
-		Password:  password,
-		Email:     email,
-		Type:      userType,
-		CreatedAt: time.Now(),
+		Username:     username,
+		Password:     password,
+		Email:        email,
+		Type:         userType,
+		ProfilePhoto: profilePhoto,
+		CreatedAt:    time.Now(),
 	}
 }
-
