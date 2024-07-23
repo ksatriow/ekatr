@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"github.com/joho/godotenv"
+	"database/sql"
 
 	"ekatr/internal/application/user"
 	"ekatr/internal/infrastructure/persistence/postgresql"
@@ -13,13 +16,21 @@ import (
 func main() {
 	logger.Init()
 	
-	dataSourceName := "user=postgres password=komar123 dbname=ekatrdb host=localhost sslmode=disable"
-	
+    if err := godotenv.Load(); err != nil {
+        log.Fatalf("Error loading .env file: %v", err)
+    }
 
-	db, err := postgresql.NewDB(dataSourceName)
-	if err != nil {
-		log.Fatalf("could not connect to the database: %v", err)
-	}
+    dbName := os.Getenv("DB_NAME")
+    dbPort := os.Getenv("DB_PORT")
+    dbUser := os.Getenv("DB_USER")
+    dbPassword := os.Getenv("DB_PASSWORD")
+    dbSSLMode := os.Getenv("DB_SSL_MODE")
+
+    connStr := "user=" + dbUser + " password=" + dbPassword + " dbname=" + dbName + " port=" + dbPort + " sslmode=" + dbSSLMode
+    db, err := sql.Open("postgres", connStr)
+    if err != nil {
+        log.Fatalf("Error connecting to the database: %v", err)
+    }
 
 	userRepo := postgresql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo)
