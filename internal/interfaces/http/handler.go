@@ -111,3 +111,70 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(users)
 }
+
+func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "missing user ID", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.DeleteUserByID(id)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error deleting user by ID: %v", err)
+		if err.Error() == "user not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// Return a success message with status 200 OK
+	w.WriteHeader(http.StatusOK)
+	response := map[string]string{"message": "User deleted successfully"}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "missing user ID", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	var dto user.UpdateUserDTO
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		logger.ErrorLogger.Printf("Error decoding request body: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.UpdateUser(id, dto)
+	if err != nil {
+		logger.ErrorLogger.Printf("Error updating user: %v", err)
+		if err.Error() == "user not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// Return a success message with status 200 OK
+	w.WriteHeader(http.StatusOK)
+	response := map[string]string{"message": "User updated successfully"}
+	json.NewEncoder(w).Encode(response)
+}
