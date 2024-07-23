@@ -97,3 +97,18 @@ func (r *UserRepository) DeleteByID(id int) error {
 	_, err := r.db.Exec(query, id)
 	return err
 }
+
+func (r *UserRepository) Update(u *user.User) error {
+	query := `
+		UPDATE users
+		SET
+			username = COALESCE($1, username),
+			password = COALESCE($2, password),
+			email = COALESCE($3, email),
+			type = COALESCE($4, type),
+			profile_photo = COALESCE($5, profile_photo)
+		WHERE id = $6
+	`
+	_, err := r.db.Exec(query, u.Username, u.Password, u.Email, u.Type, u.ProfilePhoto, u.ID)
+	return err
+}
