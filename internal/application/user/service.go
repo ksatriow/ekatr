@@ -90,3 +90,7 @@ func (s *UserService) GetAllUsers() ([]*user.User, error) {
 	}
 	return users, nil
 }
+
+func (s *UserService) DeleteUserByID(id int) error {
+	return s.repo.DeleteByID(id)
+}

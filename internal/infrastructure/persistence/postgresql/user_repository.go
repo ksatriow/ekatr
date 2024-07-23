@@ -91,3 +91,9 @@ func (r *UserRepository) FindAll() ([]*user.User, error) {
 	}
 	return users, nil
 }
+
+func (r *UserRepository) DeleteByID(id int) error {
+	query := "DELETE FROM users WHERE id = $1"
+	_, err := r.db.Exec(query, id)
+	return err
+}
