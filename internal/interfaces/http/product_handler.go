@@ -67,3 +67,15 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(product)
 }
+
+func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+    products, err := h.service.GetAllProducts()
+    if err != nil {
+        logger.ErrorLogger.Printf("Error getting all products: %v", err)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(products)
+}

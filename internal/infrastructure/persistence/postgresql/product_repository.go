@@ -31,3 +31,23 @@ func (r *ProductRepository) FindByID(id int) (*product.Product, error) {
     }
     return &p, nil
 }
+
+func (r *ProductRepository) FindAll() ([]*product.Product, error) {
+    query := "SELECT product_id, name, description, price, stock, created_at, category, product_image FROM product"
+    rows, err := r.db.Query(query)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var products []*product.Product
+    for rows.Next() {
+        var p product.Product
+        if err := rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Stock, &p.CreatedAt, &p.Category, &p.ProductImage); err != nil {
+            return nil, err
+        }
+        products = append(products, &p)
+    }
+
+    return products, nil
+}

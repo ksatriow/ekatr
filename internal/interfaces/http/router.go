@@ -16,8 +16,9 @@ func NewRouter(userHandler *UserHandler, productHandler *ProductHandler) *mux.Ro
 	router.Handle("/user", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(userHandler.DeleteUserByID)))).Methods(http.MethodDelete)
 	router.Handle("/user", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(userHandler.UpdateUserByID)))).Methods(http.MethodPut)
 	
-	// Product routes
-	router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.CreateProduct)))).Methods(http.MethodPost)
-	router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.GetProductByID)))).Methods(http.MethodGet)
+    // Product routes
+    router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.CreateProduct)))).Methods(http.MethodPost)
+    router.Handle("/product", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.GetProductByID)))).Methods(http.MethodGet)
+    router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.GetAllProducts)))).Methods(http.MethodGet)
 	return router
 }
