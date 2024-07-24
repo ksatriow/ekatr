@@ -24,7 +24,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    prod, err := h.service.CreateProduct(dto.Name, dto.Description, dto.Price, dto.Stock, dto.Category)
+    prod, err := h.service.CreateProduct(dto.Name, dto.Description, dto.Price, dto.Stock, dto.Category, dto.ProductImage)
     if err != nil {
         logger.ErrorLogger.Printf("Error creating product: %v", err)
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -34,6 +34,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(prod)
 }
+
 func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
     idStr := r.URL.Query().Get("id")
     if idStr == "" {
