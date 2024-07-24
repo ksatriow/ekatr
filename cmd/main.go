@@ -8,6 +8,7 @@ import (
 	"database/sql"
 
 	"ekatr/internal/application/user"
+	"ekatr/internal/application/product"
 	"ekatr/internal/infrastructure/persistence/postgresql"
 	httpInterface "ekatr/internal/interfaces/http"
 	"ekatr/internal/logger"
@@ -36,7 +37,11 @@ func main() {
 	userService := user.NewUserService(userRepo)
 	userHandler := httpInterface.NewUserHandler(userService)
 
-	router := httpInterface.NewRouter(userHandler)
+    productRepo := postgresql.NewProductRepository(db)
+    productService := product.NewProductService(productRepo)
+    productHandler := httpInterface.NewProductHandler(productService)
+
+	router := httpInterface.NewRouter(userHandler, productHandler)
 
 	logger.InfoLogger.Println("Server started at :8080")
 	if err := http.ListenAndServe(":8080", router); err != nil {
