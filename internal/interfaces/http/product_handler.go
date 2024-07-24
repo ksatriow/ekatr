@@ -79,3 +79,39 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(products)
 }
+
+
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+    var dto product.CreateProductDTO
+    if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+        logger.ErrorLogger.Printf("Error decoding request body: %v", err)
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    idStr := r.URL.Query().Get("id")
+    if idStr == "" {
+        http.Error(w, "missing product ID", http.StatusBadRequest)
+        return
+    }
+
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        http.Error(w, "invalid product ID", http.StatusBadRequest)
+        return
+    }
+
+    prod, err := h.service.UpdateProduct(id, dto.Name, dto.Description, dto.Price, dto.Stock, dto.Category, dto.ProductImage)
+    if err != nil {
+        logger.ErrorLogger.Printf("Error updating product: %v", err)
+        if err.Error() == "product not found" {
+            http.Error(w, err.Error(), http.StatusNotFound)
+        } else {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+        }
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(prod)
+}

@@ -51,3 +51,9 @@ func (r *ProductRepository) FindAll() ([]*product.Product, error) {
 
     return products, nil
 }
+
+func (r *ProductRepository) Update(p *product.Product) error {
+    query := "UPDATE product SET name = $1, description = $2, price = $3, stock = $4, category = $5, product_image = $6 WHERE product_id = $7"
+    _, err := r.db.Exec(query, p.Name, p.Description, p.Price, p.Stock, p.Category, p.ProductImage, p.ID)
+    return err
+}
