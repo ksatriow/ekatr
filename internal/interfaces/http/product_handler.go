@@ -3,6 +3,7 @@ package http
 import (
     "encoding/json"
     "net/http"
+    "strconv"
     "ekatr/internal/application/product"
     "ekatr/internal/logger"
 )
@@ -23,11 +24,6 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Set default category if not provided
-    if dto.Category == "" {
-        dto.Category = "Uncategorized" // Or any default value you prefer
-    }
-
     prod, err := h.service.CreateProduct(dto.Name, dto.Description, dto.Price, dto.Stock, dto.Category)
     if err != nil {
         logger.ErrorLogger.Printf("Error creating product: %v", err)
@@ -37,4 +33,36 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(prod)
+}
+func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
+    idStr := r.URL.Query().Get("id")
+    if idStr == "" {
+        http.Error(w, "missing product ID", http.StatusBadRequest)
+        return
+    }
+
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        http.Error(w, "invalid product ID", http.StatusBadRequest)
+        return
+    }
+
+    product, err := h.service.GetProductByID(id)
+    if err != nil {
+        logger.ErrorLogger.Printf("Error getting product by ID: %v", err)
+        if err.Error() == "product not found" {
+            http.Error(w, err.Error(), http.StatusNotFound)
+        } else {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+        }
+        return
+    }
+
+    if product == nil {
+        http.Error(w, "product not found", http.StatusNotFound)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(product)
 }

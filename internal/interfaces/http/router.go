@@ -18,6 +18,6 @@ func NewRouter(userHandler *UserHandler, productHandler *ProductHandler) *mux.Ro
 	
 	// Product routes
 	router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.CreateProduct)))).Methods(http.MethodPost)
-	
+	router.Handle("/products", AuthMiddleware(RoleMiddleware(ownerRole, http.HandlerFunc(productHandler.GetProductByID)))).Methods(http.MethodGet)
 	return router
 }
