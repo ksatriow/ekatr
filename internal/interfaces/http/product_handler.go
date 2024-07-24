@@ -23,7 +23,12 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    prod, err := h.service.CreateProduct(dto.Name, dto.Description, dto.Price, dto.Stock)
+    // Set default category if not provided
+    if dto.Category == "" {
+        dto.Category = "Uncategorized" // Or any default value you prefer
+    }
+
+    prod, err := h.service.CreateProduct(dto.Name, dto.Description, dto.Price, dto.Stock, dto.Category)
     if err != nil {
         logger.ErrorLogger.Printf("Error creating product: %v", err)
         http.Error(w, err.Error(), http.StatusInternalServerError)
